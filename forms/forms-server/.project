@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+  <name>forms-server</name>
+  <comment>The OW2 Consortium is an open source community committed to making available to everyone the
+    best and most reliable middleware technology. OW2 mission is to develop open source code
+    middleware and to foster a vibrant community and business ecosystem. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects>
+    <project>forms-config</project>
+    <project>forms-rpc</project>
+    <project>forms-model</project>
+    <project>security-rpc</project>
+    <project>security-model</project>
+    <project>security-server</project>
+    <project>bonita-client</project>
+    <project>console-common</project>
+    <project>bonita-server</project>
+    <project>bonita</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+  </natures>
+</projectDescription>

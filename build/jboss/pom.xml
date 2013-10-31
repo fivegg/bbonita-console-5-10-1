@@ -1,0 +1,438 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>build</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>build-jboss</artifactId>
+	<name>jboss build</name>
+	<packaging>pom</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>ant-contrib</groupId>
+			<artifactId>ant-contrib</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<properties>
+		<if.task>net.sf.antcontrib.logic.IfTask</if.task>
+		<jboss.version>5.1.0.GA</jboss.version>
+		<jboss.zip.name>jboss-${jboss.version}</jboss.zip.name>
+		<!--jboss.version>6.0.0.Final</jboss.version>		
+		<jboss.zip.name>jboss-as-distribution-${jboss.version}</jboss.zip.name-->
+		<bos.jboss.name>BOS-${project.version}-JBoss-${jboss.version}</bos.jboss.name>
+		<jboss.bos.home.dir>${project.build.directory}/${bos.jboss.name}</jboss.bos.home.dir>
+		<jboss.home>${jboss.bos.home.dir}/jboss-${jboss.version}</jboss.home>
+		<bonita.home.dir>${jboss.home}/bonita</bonita.home.dir>
+		<bonita.home.server.default.conf.dir>${bonita.home.dir}/server/default/conf</bonita.home.server.default.conf.dir>
+		<bonita.home.client.dir>${bonita.home.dir}/client/</bonita.home.client.dir>
+		<jboss.deploy.dir>${jboss.home}/server/default/deploy</jboss.deploy.dir>
+		<jboss.conf.dir>${jboss.home}/server/default/conf</jboss.conf.dir>
+		<jboss.bootstrap.dir>${jboss.home}/server/default/conf/bootstrap</jboss.bootstrap.dir>
+		<jboss.lib.dir>${jboss.home}/server/default/lib</jboss.lib.dir>
+		<jboss.download.url>http://heanet.dl.sourceforge.net/sourceforge/jboss/jboss-${jboss.version}.zip</jboss.download.url>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<dependencies>
+					<!-- Maven ant plugin dependencies must be shared by all plugin executions: 
+						see http://jira.codehaus.org/browse/MANTRUN-51 -->
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-junit</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-nodeps</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-trax</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>check-jboss-availabality</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<taskdef name="if" classname="${if.task}" classpathref="maven.runtime.classpath" />
+								<available property="jboss.present"
+									file="${jboss.zip.parent.folder}/${jboss.zip.name}.zip" />
+								<if>
+									<not>
+										<isset property="jboss.present" />
+									</not>
+									<then>
+										<get src="${jboss.download.url}" dest="${jboss.zip.parent.folder}/${jboss.zip.name}.zip" />
+									</then>
+								</if>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-jboss</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<unzip src="${jboss.zip.parent.folder}/${jboss.zip.name}.zip"
+									dest="${jboss.bos.home.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</unzip>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>rename-environment</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<!-- Isolate classloader -->
+								<echo message="Modify properties in ${jboss.deploy.dir}ers/ear-deployer-jboss-beans.xml to isolate classloader"/>
+								<replace file="${jboss.deploy.dir}ers/ear-deployer-jboss-beans.xml"
+									token="&lt;property name=&quot;isolated&quot;&gt;false&lt;/property&gt;"
+									value="&lt;property name=&quot;isolated&quot;&gt;true&lt;/property&gt;" />
+								<replace file="${jboss.deploy.dir}ers/ear-deployer-jboss-beans.xml"
+									token="&lt;property name=&quot;callByValue&quot;&gt;false&lt;/property&gt;"
+									value="&lt;property name=&quot;callByValue&quot;&gt;true&lt;/property&gt;" />
+									
+								<copy todir="${jboss.bootstrap.dir}" overwrite="true"
+											failonerror="true">
+										<fileset dir="${project.basedir}/src/main/resources/jboss/server/default/conf/bootstrap" includes="profile.xml" />
+									</copy>
+
+
+								<!-- remove some values and add hibernate.connection.datasource in order to use DataSource -->
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="# Default database connection.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.driver_class.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.url.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.username.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.password.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.driver_class.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.url.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.username.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.password.*(\n|$)" replace="" byline="false" flags="g"/>
+								<concat
+									destfile="${bonita.home.server.default.conf.dir}/bonita-journal.properties"
+									append="true" fixlastline="true">
+#
+
+#Datasource binding for JBoss
+hibernate.connection.datasource           java:bonita/default/journal
+								</concat>
+
+								<!-- remove some values and add hibernate.connection.datasource in order to use DataSource -->
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="# Default database connection.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.driver_class.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.url.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.username.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.password.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.driver_class.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.url.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.username.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.password.*(\n|$)" replace="" byline="false" flags="g"/>
+								<concat
+									destfile="${bonita.home.server.default.conf.dir}/bonita-history.properties"
+									append="true" fixlastline="true">
+#
+
+#Datasource binding for JBoss
+hibernate.connection.datasource           java:bonita/default/history
+								</concat>
+
+								<!-- Generate, then put EJB3 bonita runtime in the correct deploy 
+									folder Nota: need to generate it after renamed the hibernate-*.properties 
+									files -->
+								<ant
+									dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+									antfile="build.xml" target="ear.ejb3" />
+								
+								<!-- Remove some jars from bonita.ear -->
+								<zip destfile="tmpBonita.ear">
+  									<zipfileset src="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/ear/ejb3/bonita.ear">
+    									<exclude name="lib/activation*.jar"/>
+    									<exclude name="lib/jaxb*.jar"/>
+    									<exclude name="lib/stax*.jar"/>
+    									<exclude name="lib/h2*.jar"/>
+  									</zipfileset>
+								</zip>
+								<move file="tmpBonita.ear" tofile="${jboss.deploy.dir}/bonita.ear"/>
+								
+								<!--copy todir="${jboss.deploy.dir}"
+									file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/ear/ejb3/bonita.ear" /-->
+
+								<copy file="${project.basedir}/src/main/resources/jboss/bin/run.conf" todir="${jboss.home}/bin/" overwrite="true" />
+								<!-- Modify run.conf and run.conf.bat to set environment variable -->
+								<copy file="${project.basedir}/src/main/resources/jboss/bin/run.conf.bat" todir="${jboss.home}/bin/" overwrite="true" />
+
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-jboss-scripts-and-conf</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<!-- Copy custom login-config and h2-ds -->
+								<copy overwrite="true" todir="${jboss.home}" verbose="true">
+									<fileset
+										dir="${project.basedir}/src/main/resources/jboss">
+									</fileset>
+								</copy>
+								<chmod perm="ugo+x">
+									<fileset dir="${jboss.home}/bin">
+										<include name="*.sh" />
+									</fileset>
+								</chmod>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>move-libs-for-java-6</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+							<move todir="${jboss.home}/lib/endorsed">
+    							<filelist dir="${jboss.home}/client">
+      								<file name="jbossws-native-saaj.jar"/>
+      								<file name="jbossws-native-jaxrpc.jar"/>
+      								<file name="jbossws-native-jaxws.jar"/>
+      								<file name="jbossws-native-jaxws-ext.jar"/>
+    							</filelist>
+ 							</move>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<!-- Unpack Bonita distrib in order to generate bonita.ear -->
+					<execution>
+						<id>unpack-bonita-distrib</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.ow2.bonita</groupId>
+									<artifactId>bonita-distrib</artifactId>
+									<version>${bonita.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${project.build.directory}/bonita-distrib
+							</outputDirectory>
+						</configuration>
+					</execution>
+					
+					<!-- Unpack Bonita_home and external files for configuration-->
+					<execution>
+						<id>unpack-bonita_home</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>bonita_home</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${jboss.home}
+							</outputDirectory>
+						</configuration>
+					</execution>
+									
+					<!-- Put h2 libs -->
+					<execution>
+						<id>copy-h2</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.h2database</groupId>
+    								<artifactId>h2</artifactId>
+    								<version>1.2.139</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${jboss.lib.dir}
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>get-bonita-valve</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>bonita_valve</artifactId>
+									<version>${bonita.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${jboss.lib.dir}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<!-- Put bonita-app and bonita war in the right folder-->
+					<execution>
+						<id>copy-bonita.war</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+    								<artifactId>console-war</artifactId>
+    								<version>${project.version}</version>
+									<type>war</type>
+									<destFileName>bonita.war</destFileName>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${jboss.deploy.dir}
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-bonita-app.war</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.forms</groupId>
+    								<artifactId>forms-application</artifactId>
+    								<version>${project.version}</version>
+									<type>war</type>
+									<destFileName>bonita-app.war</destFileName>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${jboss.deploy.dir}
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>${bos.jboss.name}</finalName>
+							<descriptors>
+								<descriptor>assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>offline</id>
+			<activation>
+				<property>
+					<name>offline</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<jboss.zip.parent.folder>${jboss.zip.parent.folder}</jboss.zip.parent.folder>
+			</properties>
+		</profile>
+		<profile>
+			<id>common</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<jboss.zip.parent.folder>${user.home}</jboss.zip.parent.folder>
+			</properties>
+		</profile>
+	</profiles>
+</project>

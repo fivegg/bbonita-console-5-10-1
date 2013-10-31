@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<forms-definition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="forms.xsd" product-version="5.3">
+	<application name="ApprovalWorkflow" version="1.0">
+		<application-label>Approval Workflow</application-label>
+		<application-template>html/bonita_process_default.html</application-template>
+		<mandatory-symbol>!</mandatory-symbol>
+		<mandatory-label>mandatory</mandatory-label>
+		<mandatory-style>form_mandatory</mandatory-style>
+		<error-template>html/bonita_default_error.html</error-template>
+		<forms>
+			<form id="activity$Request">
+				<form-type>entry</form-type>
+				<pages>
+					<page id="0">
+						<page-label>Page 1 label</page-label>
+						<page-template>html/request.html</page-template>
+						<widgets>
+							<widget id="Request_Applications" type="TEXTBOX">
+								<max-length>8</max-length>
+								<title>Comment</title>
+								<style>form_input</style>
+								<label>Comment</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+								<validators>
+									<validator id="field_validator">
+										<class>org.bonitasoft.forms.server.validator.NumericDoubleFieldValidator
+										</class>
+										<label>wrong field value : this field only tolerates numbers
+										</label>
+										<style>field_validator</style>
+									</validator>
+								</validators>
+							</widget>
+							<widget id="test_widget1" type="FILEUPLOAD">
+								<title>File</title>
+								<initial-value>
+									<expression>attachment</expression>
+								</initial-value>
+								<style>form_input</style>
+								<label>File</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+							</widget>
+							<widget id="test_widget2" type="TEXTAREA">
+								<max-length>50</max-length>
+								<max-height>2</max-height>
+								<initial-value>
+									<expression>test content</expression>
+								</initial-value>
+								<title>Comment text area</title>
+								<style>form_input</style>
+								<label>Comment text area</label>
+								<label-style>form_label</label-style>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test_widget3" type="CHECKBOX">
+								<initial-value>
+									<expression>true</expression>
+								</initial-value>
+								<title>Comment checkbox</title>
+								<style>form_input</style>
+								<label>Comment checkbox</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+							</widget>
+							<widget id="test_widget4" type="RADIOBUTTON_GROUP">
+								<initial-value>
+									<expression>yes</expression>
+								</initial-value>
+								<title>Comment radio</title>
+								<style>form_input</style>
+								<label>Comment radio</label>
+								<label-style>form_label</label-style>
+								<items-style>form_input</items-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>yes</label>
+											<value>yes</value>
+										</available-value>
+										<available-value>
+											<label>no</label>
+											<value>no</value>
+										</available-value>
+										<available-value>
+											<label>maybe</label>
+											<value>maybe</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test_widget5" type="LISTBOX_SIMPLE">
+								<initial-value>
+									<expression>elem1</expression>
+								</initial-value>
+								<title>Comment listbox</title>
+								<style>form_input</style>
+								<label>Comment listbox</label>
+								<label-style>form_label</label-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>element 1</label>
+											<value>elem1</value>
+										</available-value>
+										<available-value>
+											<label>element 2</label>
+											<value>elem2</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test_widget6" type="MESSAGE">
+								<initial-value>
+									<expression>Information message</expression>
+								</initial-value>
+								<style>form_input</style>
+							</widget>
+							<widget id="test_widget7" type="LISTBOX_MULTIPLE">
+								<max-height>3</max-height>
+								<initial-value>
+									<expression>${["elem4", "elem2"]}</expression>
+								</initial-value>
+								<title>Comment listbox multiple</title>
+								<style>form_input</style>
+								<label>Comment listbox multiple</label>
+								<label-style>form_label</label-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>element 1</label>
+											<value>elem1</value>
+										</available-value>
+										<available-value>
+											<label>element 2</label>
+											<value>elem2</value>
+										</available-value>
+										<available-value>
+											<label>element 3</label>
+											<value>elem3</value>
+										</available-value>
+										<available-value>
+											<label>element 4</label>
+											<value>elem4</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test_widget8" type="DATE">
+								<title>Comment date</title>
+								<style>form_input</style>
+								<label>Comment date</label>
+								<label-style>form_label</label-style>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test_widget9" type="TEXT">
+								<initial-value>
+									<expression>test content text</expression>
+								</initial-value>
+								<title>Comment text</title>
+								<style>form_input</style>
+								<label>Comment text</label>
+								<label-style>form_label</label-style>
+							</widget>
+							<widget id="next_widget" type="BUTTON_NEXT">
+								<title>Next</title>
+								<style>button_input</style>
+								<label>Next</label>
+							</widget>
+						</widgets>
+						<page-validators>
+							<validator id="page_validator">
+								<class>org.bonitasoft.forms.application.server.validator.CustomPageValidator
+								</class>
+								<label>wrong page values : Comment text area and password
+									fields must be filled in</label>
+								<style>page_validator</style>
+							</validator>
+						</page-validators>
+						<actions>
+							<action type="EXECUTE_SCRIPT">
+								<expression></expression>
+							</action>
+						</actions>
+					</page>
+					<page id="1">
+						<page-label>Page 2 label</page-label>
+						<page-template>html/request2.html</page-template>
+						<widgets>
+							<widget id="test2_widget" type="TEXTBOX">
+								<max-length>8</max-length>
+								<title>Comment</title>
+								<style>form_input</style>
+								<label>Comment</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+								<validators>
+									<validator id="field_validator2">
+										<class>org.bonitasoft.forms.server.validator.NumericDoubleFieldValidator
+										</class>
+										<label>wrong field value : this field only tolerates numbers
+										</label>
+										<style>field_validator</style>
+									</validator>
+								</validators>
+							</widget>
+							<widget id="test2_widget1" type="PASSWORD">
+								<max-length>10</max-length>
+								<title>password</title>
+								<style>form_input</style>
+								<label>password</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+							</widget>
+							<widget id="test2_widget2" type="TEXTAREA">
+								<max-length>50</max-length>
+								<max-height>2</max-height>
+								<initial-value>
+									<expression>test content</expression>
+								</initial-value>
+								<title>Comment text area</title>
+								<style>form_input</style>
+								<label>Comment text area</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+							</widget>
+							<widget id="test2_widget3" type="CHECKBOX">
+								<title>Comment checkbox 2</title>
+								<style>form_input</style>
+								<label>Comment checkbox 2</label>
+								<label-style>form_label</label-style>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test2_widget4" type="RADIOBUTTON_GROUP">
+								<title>Comment radio 2</title>
+								<style>form_input</style>
+								<label>Comment radio 2</label>
+								<label-style>form_label</label-style>
+								<items-style>form_input</items-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>element 1</label>
+											<value>elem1</value>
+										</available-value>
+										<available-value>
+											<label>element 2</label>
+											<value>elem2</value>
+										</available-value>
+										<available-value>
+											<label>element 3</label>
+											<value>elem3</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test2_widget5" type="LISTBOX_SIMPLE">
+								<initial-value>
+									<expression>Word</expression>
+								</initial-value>
+								<title>Comment listbox 2</title>
+								<style>form_input</style>
+								<label>Comment listbox 2</label>
+								<label-style>form_label</label-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>MS Word</label>
+											<value>Word</value>
+										</available-value>
+										<available-value>
+											<label>MS Excel</label>
+											<value>Excel</value>
+										</available-value>
+										<available-value>
+											<label>MS Outlook</label>
+											<value>MailReader</value>
+										</available-value>
+										<available-value>
+											<label>Firefox</label>
+											<value>WebBrowser</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test2_widget6" type="MESSAGE">
+								<initial-value>
+									<expression>Information message</expression>
+								</initial-value>
+								<style>form_input</style>
+							</widget>
+							<widget id="test2_widget7" type="LISTBOX_MULTIPLE">
+								<max-height>3</max-height>
+								<initial-value>
+									<expression>${["elem4", "elem2"]}</expression>
+								</initial-value>
+								<title>Comment listbox multiple</title>
+								<style>form_input</style>
+								<label>Comment listbox multiple</label>
+								<label-style>form_label</label-style>
+								<available-values>
+									<values-list>
+										<available-value>
+											<label>element 1</label>
+											<value>elem1</value>
+										</available-value>
+										<available-value>
+											<label>element 2</label>
+											<value>elem2</value>
+										</available-value>
+										<available-value>
+											<label>element 3</label>
+											<value>elem3</value>
+										</available-value>
+										<available-value>
+											<label>element 4</label>
+											<value>elem4</value>
+										</available-value>
+									</values-list>
+								</available-values>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test2_widget8" type="DATE">
+								<initial-value>
+									<expression>2009.09.01</expression>
+								</initial-value>
+								<display-format>EEEE, MMMM d, yyyy</display-format>
+								<title>Comment date</title>
+								<style>form_input</style>
+								<label>Comment date</label>
+								<label-style>form_label</label-style>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test2_widget9" type="TEXT">
+								<initial-value>
+									<expression>test content text</expression>
+								</initial-value>
+								<title>Comment text</title>
+								<style>form_input</style>
+								<label>Comment text</label>
+								<label-style>form_label</label-style>
+							</widget>
+							<widget id="previous_widget" type="BUTTON_PREVIOUS">
+								<title>Previous</title>
+								<style>button_input</style>
+								<label>Previous</label>
+							</widget>
+							<widget id="next_widget2" type="BUTTON_NEXT">
+								<title>Next</title>
+								<style>button_input</style>
+								<label>Next</label>
+							</widget>
+						</widgets>
+						<actions>
+							<action type="SET_VARIABLE">
+								<variable>Applications</variable>
+								<variable-type>PROCESS_VARIABLE</variable-type>
+								<expression>field_test2_widget5</expression>
+							</action>
+						</actions>
+					</page>
+					<page id="2">
+						<page-label>Page 3 label</page-label>
+						<page-template>html/request3.html</page-template>
+						<widgets>
+							<widget id="test3_widget" type="TEXTBOX">
+								<max-length>8</max-length>
+								<title>Comment</title>
+								<style>form_input</style>
+								<label>Comment</label>
+								<label-style>form_label</label-style>
+								<mandatory>true</mandatory>
+								<validators>
+									<validator id="field_validator3">
+										<class>org.bonitasoft.forms.server.validator.NumericDoubleFieldValidator
+										</class>
+										<label>wrong field value : this field only tolerates numbers
+										</label>
+										<style>field_validator</style>
+									</validator>
+								</validators>
+							</widget>
+							<widget id="test3_widget1" type="MESSAGE">
+								<initial-value>
+									<expression>Information message very very very very very very
+										very very very very very very very very very very very very
+										very very very very very very very very very very very very
+										very very very very very very very very very very very very
+										very very very very very very very very very very very very
+										very very very very very very very very very long
+											</expression>
+								</initial-value>
+								<style>form_input</style>
+							</widget>
+							<widget id="test3_widget2" type="TEXTAREA">
+								<max-length>50</max-length>
+								<max-height>3</max-height>
+								<initial-value>
+									<expression>test content</expression>
+								</initial-value>
+								<title>Comment text area</title>
+								<style>form_input</style>
+								<label>Comment text area</label>
+								<label-style>form_label</label-style>
+								<mandatory>false</mandatory>
+							</widget>
+							<widget id="test3_widget3" type="TEXT">
+								<initial-value>
+									<expression>test content text very very very very very very
+										very very very very very very very very very very very very
+										very very very very very very very very very very very very
+										very very very long</expression>
+								</initial-value>
+								<title>Comment text</title>
+								<style>form_input</style>
+								<label>Comment text</label>
+								<label-style>form_label</label-style>
+							</widget>
+							<widget id="previous_widget2" type="BUTTON_PREVIOUS">
+								<title>Previous</title>
+								<style>button_input</style>
+								<label>Previous</label>
+							</widget>
+							<widget id="submit_widget" type="BUTTON_SUBMIT">
+								<title>Submit</title>
+								<style>button_input</style>
+								<label>Submit</label>
+							</widget>
+						</widgets>
+					</page>
+				</pages>
+				<confirmation-template>html/bonita_default_confirm.html
+				</confirmation-template>
+			</form>
+			<form id="myProcess--1.0--task1$entry">
+				<form-type>entry</form-type>
+			</form>
+		</forms>
+	</application>
+</forms-definition>

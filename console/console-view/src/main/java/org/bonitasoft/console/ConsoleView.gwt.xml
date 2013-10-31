@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
+<module>
+	<!-- Inherit the core Web Toolkit stuff.                        -->
+	<inherits name='com.google.gwt.user.User' />
+    <inherits name="com.google.gwt.json.JSON" />                   
+    <inherits name="com.google.gwt.http.HTTP" /> 	
+
+	<!-- Other Bonita resources -->
+	<inherits name='org.bonitasoft.console.security.SecurityView' />
+	<inherits name="org.bonitasoft.console.LoginView" />
+	<inherits name="org.bonitasoft.console.ProcessView" />
+	<inherits name='org.bonitasoft.forms.FormsView' />
+	
+	<!--
+		The following entry has been added to support
+		java.beans.PropertyChange* and associated listeners
+	-->
+	<inherits name="com.googlecode.gwtx.Java"/>
+	<inherits name="com.googlecode.gchart.GChart"/>
+
+	<servlet path="/label"
+		class="org.bonitasoft.console.server.labels.LabelServlet" />
+	<servlet path="/case" class="org.bonitasoft.console.server.cases.CaseServlet" />
+	<servlet path="/step" class="org.bonitasoft.console.server.steps.StepServlet" />
+	<servlet path="/user" class="org.bonitasoft.console.server.users.UserServlet" />
+	<servlet path="/identity" class="org.bonitasoft.console.server.identity.IdentityServlet" />
+	<servlet path="/category" class="org.bonitasoft.console.server.categories.CategoryServlet" />
+	<servlet path="/event" class="org.bonitasoft.console.server.steps.EventServlet" />
+
+	<!-- BAM servlet -->
+	<servlet path="/reporting" class="org.bonitasoft.console.server.bam.ReportingServlet" />
+	<servlet path="/bam/run" class="org.bonitasoft.console.server.bam.BonitaWebReport" />
+	<!-- <servlet path="/bam/jasper" class="org.bonitasoft.console.server.bam.jasper.JasperWebReport" /> -->
+
+</module>

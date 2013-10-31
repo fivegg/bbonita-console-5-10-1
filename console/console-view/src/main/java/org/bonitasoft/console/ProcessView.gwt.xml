@@ -1,0 +1,5 @@
+<module>
+    <servlet path="/process" class="org.bonitasoft.console.server.processes.ProcessServlet"/>
+	<!-- Upload servlet already available in the forms module -->
+    <!-- servlet path="/fileUpload" class="org.bonitasoft.console.servlet.FileUploadServlet"/ -->
+</module>

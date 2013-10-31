@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>bonita-console</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>security-parent</artifactId>
+	<name>security parent</name>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>security-config</module>
+		<module>security-model</module>
+		<module>security-rpc</module>
+		<module>security-server</module>
+		<module>security-view</module>
+	</modules>
+
+    <scm>
+        <connection>scm:svn:https://svn.bonitasoft.org/bonita-console/trunk/security</connection>
+        <url>https://svn.bonitasoft.org/bonita-console/trunk/security</url>
+    </scm>
+
+</project>

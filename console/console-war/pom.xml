@@ -1,0 +1,434 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>console-parent</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>console-war</artifactId>
+	<name>console war</name>
+	<packaging>war</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.bonitasoft.forms</groupId>
+			<artifactId>forms-model</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.forms</groupId>
+			<artifactId>forms-rpc</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.forms</groupId>
+			<artifactId>forms-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.forms</groupId>
+			<artifactId>forms-view</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-model</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-rpc</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-view</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-model</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-rpc</artifactId>
+			<version>${project.version}</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-view</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+			<classifier>sources</classifier>
+		</dependency>
+		<!--  GWT deps -->
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- Bonita -->
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-client</artifactId>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-codec</artifactId>
+					<groupId>commons-codec</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<!-- Required for the dev mode -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.ow2.bonita</groupId>-->
+		<!--			<artifactId>bonita-server</artifactId>-->
+		<!--			<scope>runtime</scope>-->
+		<!--		</dependency>-->
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>buildAllPermutations</id>
+			<activation>
+				<property>
+					<name>!skipPermutations</name>
+				</property>
+			</activation>
+			<build>
+
+				<plugins>
+					<!--  configure the GWT-Maven plugin -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<configuration>
+							<disableCastChecking>true</disableCastChecking>
+							<disableClassMetadata>true</disableClassMetadata>
+							<module>org.bonitasoft.console.BonitaConsole</module>
+							<compileTargets>
+								<value>org.bonitasoft.console.BonitaConsole</value>
+							</compileTargets>
+							<runTarget>org.bonitasoft.console.BonitaConsole</runTarget>
+							<logLevel>INFO</logLevel>
+							<compileReport>false</compileReport>
+							<noServer>false</noServer>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<!--
+								this parameter is VERY important with automatic mode - has to
+								match the version in your declared deps
+							-->
+							<!--
+								if this does not match (default if left out is 1.5.3) you will
+								have mysterious errors
+							-->
+							<gwtVersion>${gwtVersion}</gwtVersion>											
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<!--<goal>mergewebxml</goal>-->
+									<!--<goal>i18n</goal>-->
+									<goal>compile</goal>
+									<!--<goal>test</goal>-->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!--
+						If you want to use the target/web.xml file mergewebxml produces,
+						tell the war plugin to use it. Also, exclude what you want from
+						the final artifact here.
+					-->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>.gwt-tmp/**,WEB-INF/deploy/**</packagingExcludes>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>create-version-file</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<echo
+											file="${project.build.directory}/${project.artifactId}-${project.version}/VERSION"
+											append="false">version : ${project.version}</echo>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>buildASinglePermutationForIE</id>
+			<activation>
+				<property>
+					<name>skipPermutations</name>
+					<value>IE</value>
+				</property>
+			</activation>
+			<build>
+
+				<plugins>
+					<!--  configure the GWT-Maven plugin -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<configuration>
+							<disableCastChecking>true</disableCastChecking>
+							<disableClassMetadata>true</disableClassMetadata>
+							<module>org.bonitasoft.console.devBonitaConsoleIE</module>
+							<compileTargets>
+								<value>org.bonitasoft.console.devBonitaConsoleIE</value>
+							</compileTargets>
+							<runTarget>org.bonitasoft.console.devBonitaConsoleIE</runTarget>
+							<logLevel>INFO</logLevel>
+							<style>DETAILED</style>
+							<compileReport>false</compileReport>
+							<noServer>false</noServer>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<!--
+								this parameter is VERY important with automatic mode - has to
+								match the version in your declared deps
+							-->
+							<!--
+								if this does not match (default if left out is 1.5.3) you will
+								have mysterious errors
+							-->
+							<gwtVersion>${gwtVersion}</gwtVersion>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<!--<goal>mergewebxml</goal>-->
+									<!--<goal>i18n</goal>-->
+									<goal>compile</goal>
+									<!--<goal>test</goal>-->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!--
+						If you want to use the target/web.xml file mergewebxml produces,
+						tell the war plugin to use it. Also, exclude what you want from
+						the final artifact here.
+					-->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>.gwt-tmp/**,WEB-INF/deploy/**</packagingExcludes>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>buildASinglePermutationForFF</id>
+			<activation>
+				<property>
+					<name>skipPermutations</name>
+					<value>FF</value>
+				</property>
+			</activation>
+			<build>
+
+				<plugins>
+					<!--  configure the GWT-Maven plugin -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<configuration>
+							<disableCastChecking>true</disableCastChecking>
+							<disableClassMetadata>true</disableClassMetadata>
+							<module>org.bonitasoft.console.devBonitaConsoleFF</module>
+							<compileTargets>
+								<value>org.bonitasoft.console.devBonitaConsoleFF</value>
+							</compileTargets>
+							<runTarget>org.bonitasoft.console.devBonitaConsoleFF</runTarget>
+							<logLevel>INFO</logLevel>
+							<style>DETAILED</style>
+							<compileReport>false</compileReport>
+							<extraParam>-deploy=${project.build.directory}</extraParam>
+							<noServer>false</noServer>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<!--
+								this parameter is VERY important with automatic mode - has to
+								match the version in your declared deps
+							-->
+							<!--
+								if this does not match (default if left out is 1.5.3) you will
+								have mysterious errors
+							-->
+							<gwtVersion>${gwtVersion}</gwtVersion>							
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<!--<goal>mergewebxml</goal>-->
+									<!--<goal>i18n</goal>-->
+									<goal>compile</goal>
+									<!--<goal>test</goal>-->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!--
+						If you want to use the target/web.xml file mergewebxml produces,
+						tell the war plugin to use it. Also, exclude what you want from
+						the final artifact here.
+					-->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>.gwt-tmp/**,WEB-INF/deploy/**</packagingExcludes>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>buildASinglePermutationForChrome</id>
+			<activation>
+				<property>
+					<name>skipPermutations</name>
+					<value>C</value>
+				</property>
+			</activation>
+			<build>
+
+				<plugins>
+					<!--  configure the GWT-Maven plugin -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<configuration>
+							<disableCastChecking>true</disableCastChecking>
+							<disableClassMetadata>true</disableClassMetadata>
+							<module>org.bonitasoft.console.devBonitaConsoleChrome</module>
+							<compileTargets>
+								<value>org.bonitasoft.console.devBonitaConsoleChrome</value>
+							</compileTargets>
+							<runTarget>org.bonitasoft.console.devBonitaConsoleChrome</runTarget>
+							<logLevel>INFO</logLevel>
+							<style>DETAILED</style>
+							<compileReport>false</compileReport>
+							<extraParam>-deploy=${project.build.directory}</extraParam>
+							<noServer>false</noServer>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<!--
+								this parameter is VERY important with automatic mode - has to
+								match the version in your declared deps
+							-->
+							<!--
+								if this does not match (default if left out is 1.5.3) you will
+								have mysterious errors
+							-->
+							<gwtVersion>${gwtVersion}</gwtVersion>							
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<!--<goal>mergewebxml</goal>-->
+									<!--<goal>i18n</goal>-->
+									<goal>compile</goal>
+									<!--<goal>test</goal>-->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!--
+						If you want to use the target/web.xml file mergewebxml produces,
+						tell the war plugin to use it. Also, exclude what you want from
+						the final artifact here.
+					-->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>.gwt-tmp/**,WEB-INF/deploy/**</packagingExcludes>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>		
+	</profiles>
+</project>

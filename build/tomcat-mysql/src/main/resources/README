@@ -1,0 +1,5 @@
+This Bundle installs a MySQL 5.5 server the first time the tomcat server is launched.
+It should not be executed on a server that already has a MySQL server installed.
+
+In order for the MySQL installation to work, the tomcat server must be launched with administration privileges.
+On linux the library libaio-dev needs to be installed before the the tomcat server is lauched for the first time as it's required by MySQL 

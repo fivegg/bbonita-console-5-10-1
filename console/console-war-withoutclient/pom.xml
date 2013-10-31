@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>console-parent</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>console-war-withoutclient</artifactId>
+	<name>console war without client libs</name>
+	<packaging>war</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-war</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<executions>
+				<execution>
+						<id>unpack-cmis-war</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>console-war</artifactId>
+									<version>${project.version}</version>
+									<type>war</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+				<!-- need to write it in the same line because it doesn't otherwise -->
+					<packagingExcludes>WEB-INF/lib/asm-*.jar,WEB-INF/lib/bonita-client-*.jar,WEB-INF/lib/jaxrs-api-*.jar,WEB-INF/lib/activation-*.jar,WEB-INF/lib/commons-logging-*.jar,WEB-INF/lib/httpclient-*.jar,WEB-INF/lib/httpcore-*.jar,WEB-INF/lib/javassist-*.jar,WEB-INF/lib/jcip-annotations-*.jar,WEB-INF/lib/resteasy-jaxrs-*.jar,WEB-INF/lib/scannotation-*.jar,WEB-INF/lib/slf4j-api-*.jar,WEB-INF/lib/slf4j-jdk14-*.jar,WEB-INF/lib/xpp3_min-*.jar,WEB-INF/lib/xstream-*.jar</packagingExcludes>
+				</configuration>
+			</plugin>				
+		</plugins>
+	</build>
+</project>

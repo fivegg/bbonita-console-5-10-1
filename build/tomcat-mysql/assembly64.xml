@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.0.0.xsd">
+	<id></id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+
+	<fileSets>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${tomcat.home.dir}</directory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<excludes>
+				<exclude>bin/scripts/*.sh</exclude>
+				<exclude>bin/*.sh</exclude>
+				<exclude>external/databases/**</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${tomcat.home.dir}</directory>
+			<includes>
+				<include>bin/*.sh</include>
+				<include>bin/scripts/*.sh</include>
+			</includes>
+			<fileMode>755</fileMode>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>/</outputDirectory>
+			<directory>${tomcat.home.dir}</directory>
+			<includes>
+				<include>external/databases/${mysql.download.filename.linux64}/**/*</include>
+				<include>external/databases/${mysql.download.filename.win64}/**/*</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>

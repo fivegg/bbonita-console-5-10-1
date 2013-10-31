@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+	<HEAD>
+		<script type="text/javascript" language="javascript" src="console/scripts/bonita.js"></script>
+	</HEAD>
+	<BODY>
+		<SCRIPT type="text/javascript">
+		<!--
+		 var pattern = /\?ui=admin|&ui=admin/;
+		 var locationStr = window.location.href;
+		 var matchPos = locationStr.search(pattern);
+		 var paramsString = getParams(locationStr, true);
+		 if (matchPos != -1) {
+			if (paramsString != "" && paramsString.indexOf("#") != 0) {
+				paramsString = "&" + paramsString;
+			}
+			window.location = "console/homepage?ui=admin" + paramsString;
+		 } else if (paramsString != null && paramsString.indexOf("mode=app") == -1 && paramsString.indexOf("mode=form") == -1) {
+			if (paramsString != "" && paramsString.indexOf("#") != 0) {
+				paramsString = "&" + paramsString;
+			}
+		 	window.location = "console/homepage?ui=user" + paramsString;
+		 } else {
+			if (paramsString != "" && paramsString.indexOf("#") != 0) {
+				paramsString = "?" + paramsString;
+			}
+			window.location = "console/homepage" + paramsString;
+		 }
+		//-->
+		</SCRIPT>
+	</BODY>
+</HTML>

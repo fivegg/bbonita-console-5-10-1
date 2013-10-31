@@ -1,0 +1,273 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>console-parent</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>console-server</artifactId>
+	<name>console server</name>
+
+	<properties>
+		<cmis.repository>${plateform}</cmis.repository>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-config</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>security-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-rpc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.console</groupId>
+			<artifactId>console-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bonitasoft.theme</groupId>
+			<artifactId>theme-builder</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-codec</artifactId>
+					<groupId>commons-codec</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.bonita</groupId>
+			<artifactId>bonita-server</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>		 
+		</dependency>		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- BAM dependencies -->
+		<!--
+			<dependency> <groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId> <version>1.0.13</version>
+			</dependency>
+		-->
+		<!-- BIRT -->
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>chartengineapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>coreapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>dataadapterapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>dteapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>engineapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>modelapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+		<!--
+			<dependency> <groupId>org.eclipse.birt</groupId>
+			<artifactId>report-engine</artifactId> <type>zip</type>
+			<version>${birt.version}</version> </dependency>
+		-->
+		<dependency>
+			<groupId>org.eclipse.birt</groupId>
+			<artifactId>scriptapi</artifactId>
+			<version>${birt.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mod4j.org.eclipse.emf</groupId>
+			<artifactId>ecore</artifactId>
+			<version>${emfecore.version}</version>
+		</dependency>
+		<!--
+			Jasper <dependency> <groupId>org.codehaus.mojo</groupId>
+			<artifactId>jasperreports-maven-plugin</artifactId>
+			<version>1.0-beta-2</version> </dependency> <dependency>
+			<groupId>jasperreports</groupId>
+			<artifactId>jasperreports</artifactId> <version>3.5.3</version>
+			</dependency>
+		-->
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>
+						-DBONITA_HOME=${project.build.directory}/bonita
+					</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-engine-config-tree</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.ow2.bonita</groupId>
+									<artifactId>bonita-distrib</artifactId>
+									<version>${bonita.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+									<includes>
+										BOS-Engine-${bonita.version}/bonita/**   
+									</includes>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${project.build.directory}
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-config-tree</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>console-config</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+									<excludes>META*/**</excludes>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${project.build.directory}/bonita/client/
+							</outputDirectory>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-engine-config-tree</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy overwrite="true" todir="${project.build.directory}/bonita/">
+									<fileset
+										dir="${project.build.directory}/BOS-Engine-${bonita.version}/bonita/">
+										<include name="**" />
+									</fileset>
+								</copy>
+								<replace
+									file="${project.build.directory}/bonita/server/default/conf/bonita-server.xml"
+									token="localhost:8080" value="192.168.1.212:8387" />
+								<replace
+									file="${project.build.directory}/bonita/server/default/conf/bonita-server.xml"
+									token="string value='default'" value="string value='${cmis.repository}'" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
+</project>

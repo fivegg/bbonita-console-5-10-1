@@ -1,0 +1,540 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>build</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.console</groupId>
+	<artifactId>build-tomcat-mysql</artifactId>
+	<name>tomcat build mysql</name>
+	<packaging>pom</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>ant-contrib</groupId>
+			<artifactId>ant-contrib</artifactId>
+		</dependency>
+	</dependencies>
+	
+ <profiles>
+    <profile>
+      <id>offline</id>
+      <activation>
+        <property>
+          <name>offline</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <properties>
+        <tomcat.zip.parent.folder>${tomcat.zip.parent.folder}</tomcat.zip.parent.folder>
+        <mysql.zip.parent.folder>${tomcat.zip.parent.folder}</mysql.zip.parent.folder>
+      </properties>
+    </profile>
+    <profile>
+      <id>common</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+         <tomcat.zip.parent.folder>${user.home}</tomcat.zip.parent.folder>
+         <mysql.zip.parent.folder>${user.home}</mysql.zip.parent.folder>
+      </properties>
+    </profile>
+  </profiles>
+	
+	
+	
+	
+	<properties>
+		<if.task>net.sf.antcontrib.logic.IfTask</if.task>
+		<tomcat.bos.home.dir>${project.build.directory}/BOS-${project.version}-Tomcat-${tomcat.version}-mysql</tomcat.bos.home.dir>
+		<tomcat.home.dir>${tomcat.bos.home.dir}/apache-tomcat-${tomcat.version}</tomcat.home.dir>
+		<bonita.home.dir>${tomcat.home.dir}/bonita</bonita.home.dir>
+		<bonita.home.server.default.conf.dir>${bonita.home.dir}/server/default/conf</bonita.home.server.default.conf.dir>
+		<bonita.databases.dir>${tomcat.home.dir}/external/databases</bonita.databases.dir>
+		<bonita.home.client.dir>${bonita.home.dir}/client/</bonita.home.client.dir>
+		<tomcat.lib.dir>${tomcat.home.dir}/lib</tomcat.lib.dir>
+		<tomcat.conf.dir>${tomcat.home.dir}/conf</tomcat.conf.dir>
+		<tomcat.download.url>http://apache.crihan.fr/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</tomcat.download.url>
+		<mysql.download.url>http://mirrors.ircam.fr/pub/mysql/Downloads/MySQL-5.5</mysql.download.url>
+		<mysql.download.filename.linux>mysql-5.5.25a-linux2.6-i686</mysql.download.filename.linux>
+		<mysql.download.filename.linux64>mysql-5.5.25a-linux2.6-x86_64</mysql.download.filename.linux64>
+		<mysql.download.filename.win>mysql-5.5.25a-win32</mysql.download.filename.win>
+		<mysql.download.filename.win64>mysql-5.5.25a-winx64</mysql.download.filename.win64>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<dependencies>
+					<!--
+						Maven ant plugin dependencies must be shared by all plugin
+						executions: see http://jira.codehaus.org/browse/MANTRUN-51
+					-->
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-junit</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-nodeps</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-trax</artifactId>
+						<version>1.7.1</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>check-tomcat-availabality</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<taskdef name="if" classname="${if.task}" classpathref="maven.runtime.classpath" />
+								<available property="tomcat.present" file="${tomcat.zip.parent.folder}/apache-tomcat-${tomcat.version}.zip"/>
+								<if>
+              						<not>
+                						<isset property="tomcat.present" />
+              						</not>
+									<then>
+										<get src="${tomcat.download.url}" dest="${tomcat.zip.parent.folder}/apache-tomcat-${tomcat.version}.zip" />
+									</then>
+								</if>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-tomcat</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<unzip src="${tomcat.zip.parent.folder}/apache-tomcat-${tomcat.version}.zip" dest="${tomcat.bos.home.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</unzip>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>check-mysql-availabality</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<taskdef name="if" classname="${if.task}" classpathref="maven.runtime.classpath" />
+								<available property="mysql.linux.present" file="${mysql.zip.parent.folder}/${mysql.download.filename.linux}.tar.gz"/>
+								<if>
+              						<not>
+                						<isset property="mysql.linux.present" />
+              						</not>
+									<then>
+										<get src="${mysql.download.url}/${mysql.download.filename.linux}.tar.gz" dest="${mysql.zip.parent.folder}/${mysql.download.filename.linux}.tar.gz" />
+									</then>
+								</if>
+								<available property="mysql.linux64.present" file="${mysql.zip.parent.folder}/${mysql.download.filename.linux64}.tar.gz"/>
+								<if>
+              						<not>
+                						<isset property="mysql.linux64.present" />
+              						</not>
+									<then>
+										<get src="${mysql.download.url}/${mysql.download.filename.linux64}.tar.gz" dest="${mysql.zip.parent.folder}/${mysql.download.filename.linux64}.tar.gz" />
+									</then>
+								</if>
+								<available property="mysql.win.present" file="${mysql.zip.parent.folder}/${mysql.download.filename.win}.zip"/>
+								<if>
+              						<not>
+                						<isset property="mysql.win.present" />
+              						</not>
+									<then>
+										<get src="${mysql.download.url}/${mysql.download.filename.win}.zip" dest="${mysql.zip.parent.folder}/${mysql.download.filename.win}.zip" />
+									</then>
+								</if>
+								<available property="mysql.win64.present" file="${mysql.zip.parent.folder}/${mysql.download.filename.win64}.zip"/>
+								<if>
+              						<not>
+                						<isset property="mysql.win64.present" />
+              						</not>
+									<then>
+										<get src="${mysql.download.url}/${mysql.download.filename.win64}.zip" dest="${mysql.zip.parent.folder}/${mysql.download.filename.win64}.zip" />
+									</then>
+								</if>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-mysql</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<gunzip src="${mysql.zip.parent.folder}/${mysql.download.filename.linux}.tar.gz" dest="${project.build.directory}/${mysql.download.filename.linux}.tar"/>
+								<untar src="${project.build.directory}/${mysql.download.filename.linux}.tar" dest="${bonita.databases.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</untar>
+								<gunzip src="${mysql.zip.parent.folder}/${mysql.download.filename.linux64}.tar.gz" dest="${project.build.directory}/${mysql.download.filename.linux64}.tar"/>
+								<untar src="${project.build.directory}/${mysql.download.filename.linux64}.tar" dest="${bonita.databases.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</untar>
+								<unzip src="${mysql.zip.parent.folder}/${mysql.download.filename.win}.zip" dest="${bonita.databases.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</unzip>
+								<unzip src="${mysql.zip.parent.folder}/${mysql.download.filename.win64}.zip" dest="${bonita.databases.dir}">
+									<patternset>
+										<include name="**/*" />
+									</patternset>
+								</unzip>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-libs</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy overwrite="true"
+									todir="${tomcat.lib.dir}/bonita">
+									<fileset dir="${project.build.directory}/console-war/WEB-INF/lib">
+										<include name="*.jar" />
+									</fileset>
+								</copy>
+								<copy overwrite="true"
+									todir="${tomcat.lib.dir}/bonita">
+									<fileset
+										dir="${project.build.directory}/forms-application/WEB-INF/lib">
+										<include name="*.jar" />
+									</fileset>
+								</copy>
+								<copy overwrite="true"
+									todir="${bonita.databases.dir}/${mysql.download.filename.linux}">
+									<fileset
+										dir="${project.basedir}/src/main/resources">
+										<include name="*.cnf" />
+									</fileset>
+								</copy>
+								<copy overwrite="true"
+									todir="${bonita.databases.dir}/${mysql.download.filename.linux64}">
+									<fileset
+										dir="${project.basedir}/src/main/resources">
+										<include name="*.cnf" />
+									</fileset>
+								</copy>
+								<copy overwrite="true"
+									todir="${bonita.databases.dir}/${mysql.download.filename.win}">
+									<fileset
+										dir="${project.basedir}/src/main/resources">
+										<include name="*.ini" />
+									</fileset>
+								</copy>
+								<copy overwrite="true"
+									todir="${bonita.databases.dir}/${mysql.download.filename.win64}">
+									<fileset
+										dir="${project.basedir}/src/main/resources">
+										<include name="*.ini" />
+									</fileset>
+								</copy>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>rename-environment</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<!-- remove some values and add hibernate.connection.datasource in order to use DataSource -->
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="# Default database connection.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.driver_class.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.url.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.username.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.connection.password.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.driver_class.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.url.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.username.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.connection.password.*(\n|$)" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+\s*hibernate.connection.datasource" replace="hibernate.connection.datasource" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="hibernate.dialect\s+org.hibernate.dialect.H2Dialect" replace="#hibernate.dialect                        org.hibernate.dialect.H2Dialect" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="bonita.hibernate.interceptor\s+org.ow2.bonita.env.interceptor.H2DescNullFirstInterceptor" replace="#bonita.hibernate.interceptor             org.ow2.bonita.env.interceptor.H2DescNullFirstInterceptor" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+hibernate.dialect\s+org.hibernate.dialect.MySQL5InnoDBDialect" replace="hibernate.dialect                        org.hibernate.dialect.MySQL5InnoDBDialect" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-journal.properties" 
+									match="#+bonita.hibernate.interceptor\s+org.ow2.bonita.env.interceptor.MySQLDescNullFirstInterceptor" replace="bonita.hibernate.interceptor             org.ow2.bonita.env.interceptor.MySQLDescNullFirstInterceptor" byline="false"/>
+								
+								<!-- remove some values and add hibernate.connection.datasource in order to use DataSource -->
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="# Default database connection.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.driver_class.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.url.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.username.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.connection.password.*\n" replace="" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.driver_class.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.url.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.username.*\n" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.connection.password.*(\n|$)" replace="" byline="false" flags="g"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+\s*hibernate.connection.datasource" replace="hibernate.connection.datasource" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="hibernate.dialect\s+org.hibernate.dialect.H2Dialect" replace="#hibernate.dialect                        org.hibernate.dialect.H2Dialect" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="bonita.hibernate.interceptor\s+org.ow2.bonita.env.interceptor.H2DescNullFirstInterceptor" replace="#bonita.hibernate.interceptor             org.ow2.bonita.env.interceptor.H2DescNullFirstInterceptor" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+hibernate.dialect\s+org.hibernate.dialect.MySQL5InnoDBDialect" replace="hibernate.dialect                        org.hibernate.dialect.MySQL5InnoDBDialect" byline="false"/>
+								<replaceregexp file="${bonita.home.server.default.conf.dir}/bonita-history.properties" 
+									match="#+bonita.hibernate.interceptor\s+org.ow2.bonita.env.interceptor.MySQLDescNullFirstInterceptor" replace="bonita.hibernate.interceptor             org.ow2.bonita.env.interceptor.MySQLDescNullFirstInterceptor" byline="false"/>
+								
+                                <!--Add bonita-libs to the common classpath entry-->
+                                <replace
+                                    file="${tomcat.conf.dir}/catalina.properties"
+                                    token="$${catalina.base}/lib,$${catalina.base}/lib/*.jar,$${catalina.home}/lib,$${catalina.home}/lib/*.jar"
+                                    value="$${catalina.base}/lib,$${catalina.base}/lib/*.jar,$${cataliexo-configuration.xmlna.home}/lib,$${catalina.home}/lib/*.jar,$${catalina.home}/lib/bonita,$${catalina.home}/lib/bonita/*.jar" />
+                                    				
+                            </tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-resources-for-tomcat</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<!-- Copy all resources from project to Tomcat,
+							 	so we need to respect tomcat hierarchy in the src/tomcat folder -->
+								<copy overwrite="true"
+									todir="${tomcat.home.dir}">
+									<fileset dir="${project.basedir}/src/main/resources/tomcat"/>
+								</copy>
+								<copy overwrite="true"
+									todir="${tomcat.bos.home.dir}">
+									<fileset file="${project.basedir}/src/main/resources/README"/>
+								</copy>
+								<chmod perm="ugo+x">
+									<fileset
+										dir="${tomcat.home.dir}/bin">
+										<include name="*.sh" />
+									</fileset>
+								</chmod>
+								<chmod perm="ugo+x">
+									<fileset
+										dir="${tomcat.home.dir}/bin/scripts">
+										<include name="*.sh" />
+									</fileset>
+								</chmod>
+								<!-- rename logging.properties of tomcat in order to be able to use our provided one -->
+								<move
+									file="${tomcat.home.dir}/conf/logging.properties"
+									tofile="${tomcat.home.dir}/conf/logging-tomcat-default.properties"/>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-webapps</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+							<!-- goal>copy</goal -->
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>console-all-in-one</artifactId>
+									<version>${project.version}</version>
+									<type>war</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/console-war/</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.bonitasoft.forms</groupId>
+									<artifactId>application-all-in-one</artifactId>
+									<version>${project.version}</version>
+									<type>war</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/forms-application/</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<!-- Unpack Bonita Home to get bonita_home and external files -->
+					<execution>
+						<id>unpack-bonita_home</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>bonita_home</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${tomcat.home.dir}
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>get-bonita-valve</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>bonita_valve</artifactId>
+									<version>${bonita.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${tomcat.home.dir}/lib/bonita</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-console-war</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>bonita</finalName>
+							<descriptors>
+								<descriptor>assembly-console.xml
+								</descriptor>
+							</descriptors>
+							<outputDirectory>${tomcat.home.dir}/webapps/</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-application-war</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>bonita-app</finalName>
+							<descriptors>
+								<descriptor>assembly-application.xml
+								</descriptor>
+							</descriptors>
+							<outputDirectory>${tomcat.home.dir}/webapps/</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>BOS-${project.version}-Tomcat-${tomcat.version}-mysql</finalName>
+							<descriptors>
+								<descriptor>assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-package64</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>BOS-${project.version}-Tomcat-${tomcat.version}-mysql-x64</finalName>
+							<descriptors>
+								<descriptor>assembly64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<distributionManagement>
+		<repository>
+			<id>archiva.internal</id>
+			<name>Bonita Managed Internal Repository</name>
+			<url>http://91.121.75.179:8081/archiva/repository/internal/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<snapshotRepository>
+			<id>archiva.snapshots</id>
+			<name>Bonita Managed Snapshot Repository</name>
+			<url>http://91.121.75.179:8081/archiva/repository/snapshots/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+  </distributionManagement>
+
+</project>

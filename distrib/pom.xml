@@ -1,0 +1,269 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>bonita-console</artifactId>
+		<groupId>org.bonitasoft.console</groupId>
+		<version>5.10.1</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.bonitasoft.distrib</groupId>
+	<artifactId>console-distrib</artifactId>
+
+	<packaging>jar</packaging>
+
+	<properties>
+		<zipName>BOS-${project.version}-deploy</zipName>
+		<folderToZip>${project.build.directory}/${zipName}</folderToZip>
+		<bonita_execution_engine>${folderToZip}/bonita_execution_engine</bonita_execution_engine>
+		<bonita_user_experience>${folderToZip}/bonita_user_experience</bonita_user_experience>
+		<bonita_process_migration>${folderToZip}/bonita_process_migration</bonita_process_migration>
+		<rest_wars>${folderToZip}/bonita_execution_engine/interfaces/REST/</rest_wars>
+		<baseBonitaWar>${project.build.directory}/bonita_war</baseBonitaWar>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<!-- Unpack Bonita distrib in order to generate bonita.ear -->
+					<execution>
+						<id>unpack-bonita-distrib</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.ow2.bonita</groupId>
+									<artifactId>bonita-distrib</artifactId>
+									<version>${bonita.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${project.build.directory}/bonita-distrib
+							</outputDirectory>
+						</configuration>
+					</execution>
+					
+					<!-- Unpack forms migration script configuration files and doc-->
+					<execution>
+						<id>unpack-forms-migration</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.forms</groupId>
+									<artifactId>forms-migration</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${project.build.directory}/process_migration/forms
+							</outputDirectory>
+						</configuration>
+					</execution>
+				
+					<!-- Unpack Bonita_home and external files for configuration-->
+					<execution>
+						<id>unpack-bonita_home</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+									<artifactId>bonita_home</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${folderToZip}/conf
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+					<!--  console-all-in-one contains bonita-client and bonita-server, we will remove bonita-client.jar for the package with_engine_without_client -->
+						<id>unpack-full-bonita-war</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+    								<artifactId>console-all-in-one</artifactId>
+    								<version>${project.version}</version>
+									<type>war</type>
+									<destFileName>bonita.war</destFileName>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${baseBonitaWar}
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+					<!--  console-war-withoutclient artifact contains neither bonita-client nor bonita-server	-->
+						<id>copy-bonita.war-without-client-without-engine</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+    								<artifactId>console-war-withoutclient</artifactId>
+    								<version>${project.version}</version>
+									<type>war</type>
+									<destFileName>bonita.war</destFileName>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${bonita_user_experience}/without_execution_engine_without_client
+							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+					<!--  console-war artifact contains only bonita client	-->
+						<id>copy-bonita.war-with-client-without-engine</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bonitasoft.console</groupId>
+    								<artifactId>console-war</artifactId>
+    								<version>${project.version}</version>
+									<type>war</type>
+									<destFileName>bonita.war</destFileName>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>
+								${bonita_user_experience}/without_execution_engine_with_client
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>use-bonita-distrib</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>						
+						<configuration>
+							<tasks>
+								<!-- Generate all engine version type-->
+								<ant
+								dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+								antfile="build.xml" target="ear.ejb2" />
+								<copy todir="${bonita_execution_engine}/interfaces/EJB/EJB2"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/ear/ejb2/bonita.ear" />
+								<ant
+								dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+								antfile="build.xml" target="ear.ejb3" />
+								<copy todir="${bonita_execution_engine}/interfaces/EJB/EJB3"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/ear/ejb3/bonita.ear" />
+								<ant
+								dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+								antfile="build.xml" target="war" />
+								<copy todir="${bonita_execution_engine}/interfaces/REST/with_engine"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/war/bonita-server-rest.war" />
+								<ant
+								dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+								antfile="build.xml" target="war-rest-light" />
+								<copy todir="${bonita_execution_engine}/interfaces/REST/without_engine"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/war/war-rest-light/bonita-server-rest.war" />
+								<ant
+								dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}"
+								antfile="build.xml" target="war-rest" />
+								<copy todir="${bonita_execution_engine}/interfaces/REST/without_engine_with_rest_libs"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/war/war-rest/bonita-server-rest.war" />
+
+								<!-- Copy about-files -->
+								<copy todir="${folderToZip}/license">
+									<fileset dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/about_files"></fileset>
+								</copy>
+								
+								<!-- Copy license -->
+								<copy todir="${folderToZip}/license"
+								file="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/license.txt" />
+
+								<!-- lib of bonita-engine -->
+								<copy todir="${bonita_execution_engine}/bonita_client/libs">
+									<fileset dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/lib/client"></fileset>
+									<fileset dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/lib/rest"></fileset>
+								</copy>
+								
+								<copy todir="${bonita_execution_engine}/engine/libs">
+									<fileset dir="${project.build.directory}/bonita-distrib/BOS-Engine-${bonita.version}/lib/server"></fileset>
+								</copy>
+								
+								<!-- Copy resources -->
+								<copy todir="${folderToZip}">
+									<fileset dir="${project.basedir}/src/main/resources" excludes="excludesfile*"/>
+								</copy>
+								<replace file="${folderToZip}/README.TXT" token="XXX_VERSION_XXX" value="${project.version}"/>
+								
+								<copy todir="${bonita_process_migration}">
+									<fileset dir="${project.build.directory}/process_migration"></fileset>
+								</copy>
+								
+								<!-- Bonita User Experience -->
+								<!-- Creates with_execution_engine_without_client-->
+								<mkdir dir="${bonita_user_experience}/with_execution_engine_without_client"/>
+								<war file="${bonita_user_experience}/with_execution_engine_without_client/bonita.war" webxml="${baseBonitaWar}/WEB-INF/web.xml">      
+ 										<fileset dir="${baseBonitaWar}" excludes="WEB-INF/lib/bonita-client-*.jar"/>
+   								</war>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+							<finalName>${zipName}</finalName>
+							<descriptors>
+								<descriptor>assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

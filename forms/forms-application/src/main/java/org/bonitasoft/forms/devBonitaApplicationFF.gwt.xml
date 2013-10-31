@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
+<module rename-to='application'>
+
+	<!-- Inherit the default GWT style sheet.  You can change       -->
+	<!-- the theme of your GWT application by uncommenting          -->
+	<!-- any one of the following lines.                            -->
+	<!-- <inherits name='com.google.gwt.user.theme.standard.Standard' /> -->
+	<inherits name='com.google.gwt.user.theme.chrome.Chrome' />
+	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+	<!-- Other module inherits                                      -->
+	<inherits name='org.bonitasoft.forms.FormsView' />
+	
+	<!-- Specify the app entry point class.                         -->
+	<entry-point class='org.bonitasoft.forms.client.BonitaApplication' />
+	
+	<set-property name="user.agent" value="gecko1_8" />
+  	<set-property name="locale" value="default" />
+  	
+  	<servlet path="/loginservice" class="org.bonitasoft.console.security.server.LoginServlet" />
+  	<servlet path="/formlogin" class="org.bonitasoft.forms.server.login.FormLoginServlet"/>
+ 	<servlet path="/formsservice" class="org.bonitasoft.forms.server.FormsServlet" />
+    <servlet path="/fileUpload" class="org.bonitasoft.console.servlet.FileUploadServlet"/>
+    <servlet path="/attachmentDownload" class="org.bonitasoft.console.servlet.AttachmentDownloadServlet"/>
+    <servlet path="/formLayoutDownload" class="org.bonitasoft.forms.server.FormLayoutDownloadServlet"/>
+    <servlet path="/attachmentImage" class="org.bonitasoft.console.servlet.AttachmentImageServlet"/>
+</module>
