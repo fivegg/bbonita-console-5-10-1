@@ -19,6 +19,7 @@ package org.bonitasoft.forms.server;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -316,11 +317,22 @@ public class FormsServlet extends RemoteServiceServlet implements FormsService {
 
     public FormPage getFormNextPage(final String formID, final Map<String, Object> urlContext, final String pageIdExpression,
             final Map<String, FormFieldValue> fieldValues) throws RPCException, SessionTimeOutException {
-
+    	//add by robin
+    	Iterator<Entry<String, FormFieldValue>> iter = fieldValues.entrySet().iterator();
+    	while(iter.hasNext())
+    	{
+    		Entry<String, FormFieldValue> entry=iter.next();
+    		LOGGER.log(Level.WARNING, "??????? " + entry.getKey()+"="+entry.getValue().getValue());
+    	}
+    	//LOGGER.log(Level.WARNING, "??????? " + fieldValues.toString()); //add by robin
+        
+    	
         if (LOGGER.isLoggable(Level.FINER)) {
             String time = DATE_FORMAT.format(new Date());
             LOGGER.log(Level.FINER, "### " + time + " - getFormNextPage - start");
         }
+        
+        
         LoginContext loginContext = null;
         String localeStr = getLocale();
         Locale userLocale = resolveLocale(localeStr);

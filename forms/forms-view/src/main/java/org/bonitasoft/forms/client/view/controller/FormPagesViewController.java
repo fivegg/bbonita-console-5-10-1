@@ -249,14 +249,31 @@ public class FormPagesViewController {
                 followedPagesIds.remove(currentPageIndex);
                 currentPageIndex = newIndex;
                 final String newPageId = followedPagesIds.get(newIndex);
-                final FormPage formPage = formPages.get(newPageId);
-                buildPage(formPage, true, false);
+                //final FormPage formPage = formPages.get(newPageId);
+                formPages.remove(newPageId);
+                
+                Window.alert("displayPage newIndex < currentPageIndex"); //add by robin
+                
+                //buildPage(formPage, true, false);
+                final Map<String, FormFieldValue> fieldValues = new HashMap<String, FormFieldValue>();
+                fieldValues.putAll(widgetValues);
+                if (formID != null) {
+                    formsServiceAsync.getFormNextPage(formID, urlContext, newPageId, fieldValues, formsPageHandler);
+                }
+
+                //buildPage(formPage, false, true);
             } else {
                 if (newIndex == 0) {
                     final String newPageId = followedPagesIds.get(currentPageIndex);
                     final FormPage formPage = formPages.get(newPageId);
+                    
+                    Window.alert("displayPage newIndex ==0"); //add by robin
+                    
                     buildPage(formPage, false, true);
                 } else {
+                	
+                	Window.alert("displayPage newIndex >= currentPageIndex"); //add by robin
+                	
                     final String currentPageId = followedPagesIds.get(currentPageIndex);
                     final String nextPageExpression = formPages.get(currentPageId).getNextPageExpression();
                     currentPageIndex = newIndex;
@@ -777,19 +794,29 @@ public class FormPagesViewController {
 
             final Object source = event.getSource();
             if (!(source instanceof Label && disabledLabelButtons.contains((Label) source))) {
+            	//Window.alert("previous clicked");
                 disableButton((Widget) source, true);
-                final FormPage formPage = formPages.get(followedPagesIds.get(currentPageIndex));
-                recordValues(formPage.getFormWidgets());
-                final int newIndex = currentPageIndex - 1;
-                try {
-                    detachPageWidgets();
-                    displayPage(newIndex);
-                } catch (final IndexOutOfBoundsException e) {
-                    final String errorMessage = FormsResourceBundle.getErrors().pageIndexError(newIndex);
-                    formsServiceAsync.getApplicationErrorTemplate(errorMessage, urlContext, new ErrorPageHandler(applicationHTMLPanel, formID, pageHTMLPanel,
-                            errorMessage, elementId));
-                    enableButton(pressedButton);
+                //add by robin
+                if (editMode) {
+                	//Window.alert("previous clicked two");
+                    validatePage(ACTION_TYPE.PREVIOUS);
+                } else {
+                //end add
+	                final FormPage formPage = formPages.get(followedPagesIds.get(currentPageIndex));
+	                recordValues(formPage.getFormWidgets());
+	                final int newIndex = currentPageIndex - 1;
+	                try {
+	                    detachPageWidgets();
+	                    displayPage(newIndex);
+	                } catch (final IndexOutOfBoundsException e) {
+	                    final String errorMessage = FormsResourceBundle.getErrors().pageIndexError(newIndex);
+	                    formsServiceAsync.getApplicationErrorTemplate(errorMessage, urlContext, new ErrorPageHandler(applicationHTMLPanel, formID, pageHTMLPanel,
+	                            errorMessage, elementId));
+	                    enableButton(pressedButton);
+	                }
+	            //add by robin
                 }
+                //end add
             }
         }
     }
@@ -1003,6 +1030,8 @@ public class FormPagesViewController {
                 newIndex++;
             }
             try {
+            	Window.alert("displayPage to begin");//add by robin
+
                 detachPageWidgets();
                 displayPage(newIndex);
             } catch (final IndexOutOfBoundsException e) {
